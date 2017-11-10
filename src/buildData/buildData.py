@@ -2,42 +2,64 @@
 import sys
 sys.path.append("..")
 from model import setting
-from pymongo import *
 import re
+import collections
+import random
+import json
 
+# 将下载得到的数据进行预处理,处理结果放置到到workdir目录中
 
-# 从MongoDB中获取Java和C#的数据,提取NL和Code的Token,过滤所有\t的字符(将\t替换为\space);
-# 生成的数据集每一行表示一个数据Code NL,分为 data.txt train.txt test.txt valid.txt,用\t进行划分
-# 将数据过滤停用词等,构造为Token,将清理后的数据放到workdir目录下,命名为
-#      (github|stackoverflow).(java|csharp).(data|train|test|valid|vocab)
+def tokenizeNL(nl):
+    nl = nl.strip().decode('utf-8').encode('ascii', 'replace')
+    return re.findall(r"[\w]+|[^\s\w]", nl)
 
-def download_data(plat,lang):
-    client = MongoClient("192.168.7.113",30000)
-    db = client.code2text
-    collection = db[plat+"_"+lang]
+def tokenizeCode(code, lang):
+    code = code.strip().decode('utf-8').encode('ascii', 'replace')
 
-    dataset = []
-    id = 0
-    for doc in collection.find():
-        text = doc["title"].replace('\r','') # MongoDB的字段
-        code = doc["code"].replace('\r','')
-        docEntry = {"id": id, "text": text, "code":code }
-        dataset.append(docEntry)
-        id = id + 1
-        # 加入下载进度条显示
+    # Coded的Token提取可以使用ANTLR4构造词法分析程序进行处理,此处先使用正则进行提取
+    # typedCode = None
+    # if lang == "java":
+    #   typedCode = parseJava(code)
+    # elif lang == "csharp":
+    #   typedCode = parseCSharp(code)
 
-    f = open(setting.HOME_DIR + '/data/'+plat+'/'+lang+'/'+"data.txt", 'w')
-    for dataline in dataset:
-        line = ""+str(dataline["id"])+"\t"+dataline["text"].replace('\t','\\t').strip() + \
-                "\t"+dataline["code"].replace('\t','\\t').strip()
-        f.write(re.sub(r'\n',r'\\n',line.strip()).encode('utf-8')+'\n')
-    f.close()
+    # tokens = [re.sub( '\s+', ' ', x.strip())  for x in typedCode]
+
+    tokens = re.findall(r"[\w]+|[^\s\w]", code)
+    return tokens
+
+def buildVocab(plat,lang):
+    filename = setting.HOME_DIR + "/data/" + plat + "/" + lang + "/data.txt"
+    words = collections.Counter()
+    tokens = collections.Counter()
+    for line in open(filename, "r"):
+        Lid, Lnl, Lcode = line.strip().split('\t')
+        tokens.update(tokenizeCode(Lcode, lang))
+        words.update(tokenizeNL(Lnl))
+    
+    fa = open(setting.WORKDIR + '/vocab.'+lang+'.text', 'w')
+    fb = open(setting.WORKDIR + '/vocab.'+lang+'.code', 'w')
+    for tok in tokens:
+        if tokens[tok] > setting.CODE_UNK_THRESHOLD:
+            fb.write(tok + '\t' + str(tokens[tok]) + '\n')
+
+    for wd in words:
+        if words[wd] > setting.TEXT_UNK_THRESHOLD:
+            fa.write(wd + '\t' + str(words[wd]) + '\n')
+    fa.close()
+    fb.close()
+    # f1 = open(setting.WORKDIR + '/' + plat + '.' + lang + '.vocab.text', 'w')
+    # f1.write(json.dumps(words))
+    # f1.close()
+    # f2 = open(setting.WORKDIR + '/' + plat + '.' + lang + '.vocab.code', 'w')
+    # f2.write(json.dumps(tokens))
+    # f2.close()
 
     return
 
+
 # 获取GitHub和StackOverflow的数据,并将处理后的数据放到workdir目录下
 if __name__ == '__main__':
-     
-    print(setting.HOME_DIR)
-    download_data("stackoverflow","java")
-    download_data("stackoverflow","csharp")
+    buildVocab("stackoverflow","java")
+    buildVocab("stackoverflow","csharp")
+    
