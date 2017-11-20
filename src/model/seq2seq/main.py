@@ -4,44 +4,43 @@ mpl.use('Agg')
 import random
 import setting
 import matplotlib.pyplot as plt
-from src.model.seq2seq.buildVocab import prepareData
+from buildVocab import readVocab,variablesPairsFromData
 from evaluate import evaluateRandomly,evaluate
 from encoder import EncoderRNN
 from decoder import AttnDecoderRNN
 from train import trainIters
 from utils import evaluateAndShowAttention
 
-
-# Prepare train data
-print("Prepare train data...\n")
-input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
-print(random.choice(pairs))
+lang = 'java'
+dataSet = 'so'
+dataType = 'train'
 
 # Training
 print("Training...")
-hidden_size = 256
-encoder1 = EncoderRNN(input_lang.n_words, hidden_size)
-attn_decoder1 = AttnDecoderRNN(hidden_size, output_lang.n_words, 1, dropout_p=0.1)
+nlVocab, codeVocab = readVocab(lang, dataSet)
+train_pairs, train_variables = variablesPairsFromData("train", lang, dataSet)
+test_pairs, test_variables = variablesPairsFromData("test", lang, dataSet)
+valid_pairs, valid_variables = variablesPairsFromData("valid", lang, dataSet)
+
+encoder1 = EncoderRNN(codeVocab.n_words, setting.HIDDDEN_SIAZE)
+attn_decoder1 = AttnDecoderRNN(setting.HIDDDEN_SIAZE, nlVocab.n_words, 1, dropout_p=0.1)
 
 if setting.USE_CUDA:
     encoder1 = encoder1.cuda()
     attn_decoder1 = attn_decoder1.cuda()
 
-trainIters(encoder1, attn_decoder1, 75000, print_every=5000)
+trainIters(train_variables, encoder1, attn_decoder1, 75000, print_every=5000)
 
 # Evaluating
 print("Evaluating...")
-evaluateRandomly(encoder1, attn_decoder1)
-
-# Visualizing Attention
+evaluateRandomly(lang, dataSet, encoder1, attn_decoder1,test_pairs)
+# Test a demo and visualizing Attention
 print("Visualizing Attention...")
-output_words, attentions = evaluate(
-    encoder1, attn_decoder1, "je suis trop froid .")
+
+codeInput = "je suis trop froid ."
+output_words, attentions = evaluate(nlVocab, codeVocab, encoder1, attn_decoder1, codeInput)
 plt.matshow(attentions.numpy())
 
-# Some Test Demo
-evaluateAndShowAttention(encoder1,attn_decoder1,"elle a cinq ans de moins que moi .")
-evaluateAndShowAttention(encoder1,attn_decoder1,"elle est trop petit .")
-evaluateAndShowAttention(encoder1,attn_decoder1,"je ne crains pas de mourir .")
-evaluateAndShowAttention(encoder1,attn_decoder1,"c est un jeune directeur plein de talent .")
+evaluateAndShowAttention(nlVocab, codeVocab, encoder1,attn_decoder1,codeInput)
+
 

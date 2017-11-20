@@ -23,23 +23,17 @@ CSHARP_UNK_THRESHOLD = 2
 TEXT_UNK_THRESHOLD = 2
 
 # 是否使用cuda
-USE_CUDA = True
+USE_CUDA = False
 
 # 设置神经网络参数
 teacher_forcing_ratio = 0.5
+HIDDDEN_SIAZE = 256
 
 # Seq2Seq参数
-SOS_token = 0
-EOS_token = 1
-# 为了训练速度，太长的句子不进行训练，设定阈值
-SENTENCE_MAX_LENGTH = 50
+SOS_TOKEN = 2
+EOS_TOKEN = 3
+UNK_TOKEN = 0
+PAD_TOKEN = 0
 
-# Seq2Seq nmt 的前缀处理
-eng_prefixes = (
-    "i am ", "i m ",
-    "he is", "he s ",
-    "she is", "she s",
-    "you are", "you re ",
-    "we are", "we re ",
-    "they are", "they re "
-)
+# 为了训练速度，太长的句子不进行训练，设定阈值
+SENTENCE_MAX_LENGTH = 100

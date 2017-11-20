@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 import matplotlib as mpl
 mpl.use('Agg')
-import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import time
 import math
 import setting
 from evaluate import evaluate
-import numpy as np
+
 
 def showPlot(points):
     plt.figure()
@@ -29,11 +28,11 @@ def asMinutes(s):
 def timeSince(since, percent):
     now = time.time()
     s = now - since
-    es = s / (percent+1)
+    es = s / (percent)
     rs = es - s
     return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
 
-def showAttention(attentions,input_sentence, output_words, ):
+def showAttention(attentions,input_sentence, output_words ):
     # Set up figure with colorbar
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -53,9 +52,8 @@ def showAttention(attentions,input_sentence, output_words, ):
     plt.savefig(setting.PNG_HOME + time.strftime("/[%Y%m%d %H:%M:%S]attention.png", time.localtime()))
 
 
-def evaluateAndShowAttention(encoder, attn_decoder,input_sentence):
-    output_words, attentions = evaluate(
-        encoder, attn_decoder, input_sentence)
-    print('input =', input_sentence)
-    print('output =', ' '.join(output_words))
+def evaluateAndShowAttention(nlVocab, codeVocab, encoder, attn_decoder,input_sentence):
+    output_words, attentions = evaluate(nlVocab, codeVocab, encoder, attn_decoder, input_sentence)
+    print('> Code  Input: ', input_sentence)
+    print('< NL generate: ', ' '.join(output_words))
     showAttention(input_sentence, output_words, attentions)

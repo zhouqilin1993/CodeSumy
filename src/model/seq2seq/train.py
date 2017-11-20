@@ -1,41 +1,18 @@
 # -*- coding: utf-8 -*-
 import random
 import time
+import setting
+from utils import showPlot, timeSince
+from buildVocab import variablesPairsFromData
 
 import torch
 import torch.nn as nn
 from torch import optim
 from torch.autograd import Variable
 
-import setting
-from src.model.seq2seq.buildVocab import prepareData
-from utils import showPlot, timeSince
 
-# Prepare training data
-print("Prepare train data...\n")
-input_lang, output_lang, pairs = prepareData('eng', 'fra', True)
-print(random.choice(pairs))
-
-def indexesFromSentence(lang, sentence):
-    return [lang.word2index[word] for word in sentence.split(' ')]
-
-
-def variableFromSentence(lang, sentence):
-    indexes = indexesFromSentence(lang, sentence)
-    indexes.append(setting.EOS_token)
-    result = Variable(torch.LongTensor(indexes).view(-1, 1))
-    if setting.USE_CUDA:
-        return result.cuda()
-    else:
-        return result
-
-def variablesFromPair(pair):
-    input_variable = variableFromSentence(input_lang, pair[0])
-    target_variable = variableFromSentence(output_lang, pair[1])
-    return (input_variable, target_variable)
-
-
-def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion, max_length=setting.SENTENCE_MAX_LENGTH):
+def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, decoder_optimizer, \
+          criterion, max_length=setting.SENTENCE_MAX_LENGTH):
     encoder_hidden = encoder.initHidden()
 
     encoder_optimizer.zero_grad()
@@ -54,7 +31,7 @@ def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, 
             input_variable[ei], encoder_hidden)
         encoder_outputs[ei] = encoder_output[0][0]
 
-    decoder_input = Variable(torch.LongTensor([[setting.SOS_token]]))
+    decoder_input = Variable(torch.LongTensor([[setting.SOS_TOKEN]]))
     decoder_input = decoder_input.cuda() if setting.USE_CUDA else decoder_input
 
     decoder_hidden = encoder_hidden
@@ -81,7 +58,7 @@ def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, 
             decoder_input = decoder_input.cuda() if setting.USE_CUDA else decoder_input
 
             loss += criterion(decoder_output, target_variable[di])
-            if ni == setting.EOS_token:
+            if ni == setting.EOS_TOKEN:
                 break
 
     loss.backward()
@@ -91,7 +68,9 @@ def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, 
 
     return loss.data[0] / target_length
 
-def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+variablesPairs = variablesPairsFromData("train","java","so")
+
+def trainIters(pairs, encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
     start = time.time()
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
@@ -99,8 +78,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    training_pairs = [variablesFromPair(random.choice(pairs))
-                      for i in range(n_iters)]
+
+    # 随机获取训练的数据集
+    training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.NLLLoss()
 
     for iter in range(1, n_iters + 1):
@@ -127,5 +107,5 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             plot_loss_total = 0
 
     torch.save(encoder,setting.MODEL_HOME+"/encoder.pkl")
-    torch.save(encoder, setting.MODEL_HOME + "/decoder.pkl")
+    torch.save(decoder, setting.MODEL_HOME + "/decoder.pkl")
     showPlot(plot_losses)

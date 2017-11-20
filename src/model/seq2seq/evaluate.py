@@ -6,13 +6,10 @@ import torch
 from torch.autograd import Variable
 
 import setting
-from src.model.seq2seq.buildVocab import prepareData
-from src.model.seq2seq.buildVocab import variableFromSentence
+from buildVocab import variableFromSentence, readVocab
 
-
-def evaluate(encoder, decoder, sentence, max_length=setting.SENTENCE_MAX_LENGTH):
-    input_lang, output_lang, pairs = prepareData('eng', 'fra')
-    input_variable = variableFromSentence(input_lang, sentence)
+def evaluate(nlVocab, codeVocab, encoder, decoder, sentence, max_length=setting.SENTENCE_MAX_LENGTH):
+    input_variable = variableFromSentence(codeVocab, sentence)
     input_length = input_variable.size()[0]
     encoder_hidden = encoder.initHidden()
 
@@ -24,7 +21,7 @@ def evaluate(encoder, decoder, sentence, max_length=setting.SENTENCE_MAX_LENGTH)
                                                  encoder_hidden)
         encoder_outputs[ei] = encoder_outputs[ei] + encoder_output[0][0]
 
-    decoder_input = Variable(torch.LongTensor([[setting.SOS_token]]))  # SOS
+    decoder_input = Variable(torch.LongTensor([[setting.SOS_TOKEN]]))  # SOS
     decoder_input = decoder_input.cuda() if setting.USE_CUDA else decoder_input
 
     decoder_hidden = encoder_hidden
@@ -42,19 +39,21 @@ def evaluate(encoder, decoder, sentence, max_length=setting.SENTENCE_MAX_LENGTH)
             decoded_words.append('<EOS>')
             break
         else:
-            decoded_words.append(output_lang.index2word[ni])
+            decoded_words.append(nlVocab.getIndex(ni))
 
         decoder_input = Variable(torch.LongTensor([[ni]]))
         decoder_input = decoder_input.cuda() if setting.USE_CUDA else decoder_input
 
     return decoded_words, decoder_attentions[:di + 1]
 
-def evaluateRandomly(encoder, decoder, pairs,n=10):
+def evaluateRandomly(lang, dataSet, encoder, decoder, pairs,n=10):
+    nlVocab, codeVocab = readVocab(lang, dataSet)
     for i in range(n):
-        pair = random.choice(pairs)
-        print('>', pair[0])
-        print('=', pair[1])
-        output_words, attentions = evaluate(encoder, decoder, pair[0])
+        pair = random.choice([pair for pair in pairs if len(pair[0].split(' '))<setting.SENTENCE_MAX_LENGTH and \
+                              len(pair[1].split(' '))<setting.SENTENCE_MAX_LENGTH])
+        print('> CodeInput:', pair[0])
+        print('= NL target:', pair[1])
+        output_words, attentions = evaluate(nlVocab, codeVocab, encoder, decoder, pair[0])
         output_sentence = ' '.join(output_words)
-        print('<', output_sentence)
+        print('NL generate:', output_sentence)
         print('')

@@ -8,7 +8,8 @@ import json
 import setting
 import re
 
-
+import torch
+from torch.autograd import Variable
 
 
 # Lowercase, trim, and remove non-letter characters
@@ -44,8 +45,8 @@ def tokenizeCode(code_str, lang):
 class VocabSet:
     def __init__(self):
         self.n_words = 3  # Count UNK, TOKEN_START and TOKEN_END
-        self.word2index = {"UNK": 0, "PAD": 1, "TOKEN_START": 2, "TOKEN_END": 3} # PAD 表示低频词语，UNK 表示不在词表里面
-        self.index2word = {0: "UNK", 1: "PAD", 2: "TOKEN_START", 3: "TOKEN_END"}
+        self.word2index = {"UNK": 0, "PAD": 1, "SOS": 2, "EOS": 3} # PAD 表示低频词语，UNK 表示不在词表里面
+        self.index2word = {0: "UNK", 1: "PAD", 2: "SOS", 3: "EOS"}
         self.word2count = {}
 
     def vocabSplit(self, TokenSet):
@@ -82,7 +83,7 @@ class VocabSet:
         if word in self.word2index.keys():
             index = int(self.word2index[word])
         else:
-            index = 0
+            index = setting.UNK_TOKEN
         return index
 
 class TokenSet:
@@ -151,14 +152,32 @@ def genVocab(filename, lang = "java", dataSet = "stackoverflow"): # 只使用 tr
     nlSet.saveVocab(dataSet,lang)
     codeSet.saveVocab(dataSet,lang)
 
-# def readCodeStr(code_str,lang):
-#     print("Reading Code String ...")
-#     lines = tokenizeCode(code_str, lang)
-#
-#     codeSet = TokenSet("CODE", lang)
-#     codeSet.addSentence(lines)
-#
-#     return codeSet
+
+def indexesFromSentence(Vocab, sentence):
+    return [Vocab.getIndex(word) for word in sentence.split(' ')]
+
+
+def variableFromSentence(Vocab, sentence):
+    indexes = indexesFromSentence(Vocab, sentence)
+    indexes.append(setting.EOS_TOKEN)
+    result = Variable(torch.LongTensor(indexes).view(-1, 1))
+    if setting.USE_CUDA:
+        return result.cuda()
+    else:
+        return result
+
+
+def variablesPairsFromData(dataType, lang, dataSet):
+    nlVocab, codeVocab = readVocab(lang, dataSet)
+    lines = open(setting.WORKDIR + '/%s.%s.%s.data' % (dataSet, lang, dataType), encoding='utf-8'). \
+        read().strip().split('\n')
+    pairs = [[normalizeString(s) for s in l.split('\t')] for l in lines]
+    pairs = [[pair[2],pair[1]] for pair in pairs if len(pair) == 3 and \
+             len(pair[2])<setting.SENTENCE_MAX_LENGTH and len(pair[1])<setting.SENTENCE_MAX_LENGTH]
+    #train_pairs = [[ pair[0], pair[1]] for pair in pairs]
+    train_pairs = [[variableFromSentence(codeVocab,pair[0]),variableFromSentence(nlVocab,pair[1])] for pair in pairs]
+
+    return pairs, train_pairs
 
 def readVocab(lang, dataSet):
     nlVocab = VocabSet()
@@ -171,41 +190,36 @@ def readVocab(lang, dataSet):
     return nlVocab,codeVocab
 
 def genDataSet(dataSetType, lang, dataSet):
-    nlVocab, codeVocab = readVocab(lang, dataSet)
     lines = open(setting.HOME_DIR+'/data/%s/%s/%s.txt' % (dataSet,lang,dataSetType)).\
         read().strip().split('\n')
     f = open(setting.WORKDIR + "/%s.%s.%s.data" % (dataSet, lang, dataSetType), 'w')
-    f2 = open(setting.WORKDIR + "/%s.%s.%s.num" % (dataSet, lang, dataSetType), 'w')
     for line in lines:
         line_id, line_text, line_code = line.strip().split('\t')
         line_str = line_id + '\t'
-        line_num = line_id + '\t'
         for word in tokenizeNL(line_text):
             line_str = line_str + word + ' '
-            line_num = str(line_num) + str(nlVocab.getIndex(word)) + ' '
         line_str = line_str.strip() + '\t'
-        line_num = line_num.strip() + '\t'
         for code in tokenizeCode(line_code,lang):
             line_str = line_str + code + ' '
-            line_num = line_num + str(codeVocab.getIndex(code)) + ' '
         line_str = line_str.strip() + '\n'
-        line_num = line_num.strip() + '\n'
 
         f.write(line_str)
-        f2.write(unicode(line_num))
     f.close()
-    f2.close()
 
 if __name__ == '__main__':
-    genVocab("train.txt","java","so")
-    genVocab("train.txt", "csharp", "so")
+    # genVocab("train.txt","java","so")
+    # genVocab("train.txt", "csharp", "so")
+    #
+    # genDataSet("train","java","so")
+    # genDataSet("test", "java", "so")
+    # genDataSet("valid", "java", "so")
+    #
+    # genDataSet("train","csharp","so")
+    # genDataSet("test", "csharp", "so")
+    # genDataSet("valid", "csharp", "so")
 
-    genDataSet("train","java","so")
-    genDataSet("test", "java", "so")
-    genDataSet("valid", "java", "so")
+    print (variablesPairsFromData("valid", "csharp", "so"))
 
-    genDataSet("train","csharp","so")
-    genDataSet("test", "csharp", "so")
-    genDataSet("valid", "csharp", "so")
+
 
 
