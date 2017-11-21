@@ -35,7 +35,7 @@ def evaluate(nlVocab, codeVocab, encoder, decoder, sentence, max_length=setting.
         decoder_attentions[di] = decoder_attention.data
         topv, topi = decoder_output.data.topk(1)
         ni = topi[0][0]
-        if ni == setting.EOS_token:
+        if ni == setting.EOS_TOKEN:
             decoded_words.append('<EOS>')
             break
         else:

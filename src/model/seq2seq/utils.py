@@ -7,6 +7,9 @@ import time
 import math
 import setting
 from evaluate import evaluate
+from buildVocab import readVocab
+
+import torch
 
 
 def showPlot(points):
@@ -28,7 +31,7 @@ def asMinutes(s):
 def timeSince(since, percent):
     now = time.time()
     s = now - since
-    es = s / (percent)
+    es = s / (percent+0.01)
     rs = es - s
     return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
 
@@ -51,6 +54,16 @@ def showAttention(attentions,input_sentence, output_words ):
     plt.show()
     plt.savefig(setting.PNG_HOME + time.strftime("/[%Y%m%d %H:%M:%S]attention.png", time.localtime()))
 
+
+def evalDemo(dataSet, lang, CodeStr):
+    nlVocab, codeVocab = readVocab(lang, dataSet)
+    encoder = torch.load(setting.MODEL_HOME + "/%s.%s.encoder.pkl" % (dataSet, lang))
+    decoder = torch.load(setting.MODEL_HOME + "/%s.%s.decoder.pkl" % (dataSet, lang))
+
+    output_words, attentions = evaluate(nlVocab, codeVocab, encoder, decoder, CodeStr)
+    print('> Code  Input: ', CodeStr)
+    print('< NL generate: ', ' '.join(output_words))
+    showAttention(CodeStr, output_words, attentions)
 
 def evaluateAndShowAttention(nlVocab, codeVocab, encoder, attn_decoder,input_sentence):
     output_words, attentions = evaluate(nlVocab, codeVocab, encoder, attn_decoder, input_sentence)

@@ -3,7 +3,7 @@
 
 import setting
 import torch
-from utils import evaluateAndShowAttention
+from utils import evalDemo
 
 encoder = torch.load(setting.MODEL_HOME+"/encoder.pkl")
 attn_decoder = torch.load(setting.MODEL_HOME+"/decoder.pkl")

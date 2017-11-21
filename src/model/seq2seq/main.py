@@ -11,6 +11,8 @@ from decoder import AttnDecoderRNN
 from train import trainIters
 from utils import evaluateAndShowAttention
 
+import torch
+
 lang = 'java'
 dataSet = 'so'
 dataType = 'train'
@@ -25,11 +27,17 @@ valid_pairs, valid_variables = variablesPairsFromData("valid", lang, dataSet)
 encoder1 = EncoderRNN(codeVocab.n_words, setting.HIDDDEN_SIAZE)
 attn_decoder1 = AttnDecoderRNN(setting.HIDDDEN_SIAZE, nlVocab.n_words, 1, dropout_p=0.1)
 
+# torch.save(encoder1, setting.MODEL_HOME + "/%s.%s.encoder.pkl" % (dataSet, lang))
+# torch.save(attn_decoder1,setting.MODEL_HOME + "/%s.%s.decoder.pkl" % (dataSet, lang))
+#
+# encoder = torch.load(setting.MODEL_HOME + "/%s.%s.encoder.pkl" % (dataSet, lang))
+# decoder = torch.load(setting.MODEL_HOME + "/%s.%s.decoder.pkl" % (dataSet, lang))
+
 if setting.USE_CUDA:
     encoder1 = encoder1.cuda()
     attn_decoder1 = attn_decoder1.cuda()
 
-trainIters(train_variables, encoder1, attn_decoder1, 75000, print_every=5000)
+trainIters(lang, dataSet, train_variables, encoder1, attn_decoder1, 75000, print_every=5000)
 
 # Evaluating
 print("Evaluating...")

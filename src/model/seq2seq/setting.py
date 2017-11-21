@@ -6,7 +6,7 @@ HOME_DIR = BASE_DIR + "/CodeSumy"
 WORKDIR = HOME_DIR + "/data/workdir"
 PNG_HOME = HOME_DIR + "/data/pngSaved"
 
-MODEL_HOME = HOME_DIR + "/src/model/model_saved"
+MODEL_HOME = BASE_DIR + "/CodeSumy/src/model/modelSaved"
 # 设置数据集的构造 设置数据集划分比例和规模
 DOWNLOAD_DATA = False
 SPLITE_DATA = False

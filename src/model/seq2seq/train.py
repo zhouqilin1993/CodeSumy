@@ -68,9 +68,7 @@ def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, 
 
     return loss.data[0] / target_length
 
-variablesPairs = variablesPairsFromData("train","java","so")
-
-def trainIters(pairs, encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+def trainIters(lang, dataSet, pairs, encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
     start = time.time()
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
@@ -106,6 +104,7 @@ def trainIters(pairs, encoder, decoder, n_iters, print_every=1000, plot_every=10
             plot_losses.append(plot_loss_avg)
             plot_loss_total = 0
 
-    torch.save(encoder,setting.MODEL_HOME+"/encoder.pkl")
-    torch.save(decoder, setting.MODEL_HOME + "/decoder.pkl")
+    torch.save(encoder, setting.MODEL_HOME + "/%s.%s.encoder.pkl" % (dataSet, lang))
+    torch.save(decoder, setting.MODEL_HOME + "/%s.%s.decoder.pkl" % (dataSet, lang))
+
     showPlot(plot_losses)
