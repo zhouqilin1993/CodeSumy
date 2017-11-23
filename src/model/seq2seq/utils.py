@@ -35,11 +35,12 @@ def timeSince(since, percent):
     rs = es - s
     return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
 
-def showAttention(attentions,input_sentence, output_words ):
+def showAttention(attentions, input_sentence, output_words ):
     # Set up figure with colorbar
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    cax = ax.matshow(attentions.numpy(), cmap='bone')
+    print("atten:", attentions)
+    cax = ax.matshow(torch.FloatTensor(attentions).numpy(), cmap='bone')
     fig.colorbar(cax)
 
     # Set up axes

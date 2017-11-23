@@ -90,8 +90,8 @@ def trainIters(lang, dataSet, pairs, encoder, decoder, n_iters, print_every=1000
                      decoder, encoder_optimizer, decoder_optimizer, criterion)
         print_loss_total += loss
         plot_loss_total += loss
-        if print_loss_total / print_every <= 0.0003:
-            break
+        # if print_loss_total / print_every <= 0.0003:
+        #    break
 
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every

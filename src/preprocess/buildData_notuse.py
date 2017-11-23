@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append("..")
-from src.seq2seqTest.model import setting
+from src.model.seq2seq import setting
 import re
 import collections
 import json

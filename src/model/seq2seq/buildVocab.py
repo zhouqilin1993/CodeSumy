@@ -79,6 +79,9 @@ class VocabSet:
         self.index2word = vocabSet['index2word']
         self.word2count = vocabSet['word2count']
 
+    def getWord(self, index):
+        return self.index2word[str(index)]
+
     def getIndex(self, word):
         if word in self.word2index.keys():
             index = int(self.word2index[word])
@@ -137,7 +140,6 @@ class TokenSet:
         self.token2count = int(tokenSet.token2count)
         self.n_tokens = int(tokenSet.n_tokens)
 
-
 def genVocab(filename, lang = "java", dataSet = "stackoverflow"): # 只使用 train.txt 生成词表
     lines = open(setting.HOME_DIR + '/data/%s/%s/%s' % (dataSet, lang, filename), encoding='utf-8'). \
         read().strip().split('\n')
@@ -145,9 +147,10 @@ def genVocab(filename, lang = "java", dataSet = "stackoverflow"): # 只使用 tr
     codeSet = TokenSet("CODE", lang)
 
     for l in lines:
-        data_id, nl_str,code_str = normalizeString(l).split('\t')
-        nlSet.addSentence(nl_str)
-        codeSet.addSentence(code_str)
+        line = [item for item in normalizeString(l).split('\t')]
+        if len(line) == 3:
+            nlSet.addSentence(line[1])
+            codeSet.addSentence(line[2])
 
     nlSet.saveVocab(dataSet,lang)
     codeSet.saveVocab(dataSet,lang)
@@ -166,7 +169,7 @@ def variableFromSentence(Vocab, sentence):
     else:
         return result
 
-
+# 导致前期速度慢的主要原因
 def variablesPairsFromData(dataType, lang, dataSet):
     nlVocab, codeVocab = readVocab(lang, dataSet)
     lines = open(setting.WORKDIR + '/%s.%s.%s.data' % (dataSet, lang, dataType), encoding='utf-8'). \
@@ -194,31 +197,31 @@ def genDataSet(dataSetType, lang, dataSet):
         read().strip().split('\n')
     f = open(setting.WORKDIR + "/%s.%s.%s.data" % (dataSet, lang, dataSetType), 'w')
     for line in lines:
-        line_id, line_text, line_code = line.strip().split('\t')
-        line_str = line_id + '\t'
-        for word in tokenizeNL(line_text):
-            line_str = line_str + word + ' '
-        line_str = line_str.strip() + '\t'
-        for code in tokenizeCode(line_code,lang):
-            line_str = line_str + code + ' '
-        line_str = line_str.strip() + '\n'
-
-        f.write(line_str)
+        l = [item for item in normalizeString(line).split('\t')]
+        if len(l) == 3:
+            line_id, line_text, line_code = l
+            line_str = line_id + '\t'
+            for word in tokenizeNL(line_text):
+                line_str = line_str + word + ' '
+            line_str = line_str.strip() + '\t'
+            for code in tokenizeCode(line_code,lang):
+                line_str = line_str + code + ' '
+            line_str = line_str.strip() + '\n'
+            f.write(unicode(line_str))
     f.close()
 
 if __name__ == '__main__':
-    # genVocab("train.txt","java","so")
-    # genVocab("train.txt", "csharp", "so")
-    #
-    # genDataSet("train","java","so")
-    # genDataSet("test", "java", "so")
-    # genDataSet("valid", "java", "so")
-    #
-    # genDataSet("train","csharp","so")
-    # genDataSet("test", "csharp", "so")
-    # genDataSet("valid", "csharp", "so")
+    genVocab("train.txt","java","so")
+    genVocab("train.txt", "csharp", "so")
 
-    print (variablesPairsFromData("valid", "csharp", "so"))
+    genDataSet("train","java","so")
+    genDataSet("test", "java", "so")
+    genDataSet("valid", "java", "so")
+
+    genDataSet("train","csharp","so")
+    genDataSet("test", "csharp", "so")
+    genDataSet("valid", "csharp", "so")
+
 
 
 

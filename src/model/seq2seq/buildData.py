@@ -51,6 +51,7 @@ def splitData(plat,lang):
         data_num = setting.DATASET_SIZE
     else:
         print("ERROR: DATASET_SIZE MUST >= 0 !")
+
     data_idx = set(range(data_num))
     train_idx = set(random.sample(data_idx,int(data_num * setting.TRAIN_PROP)))
     valid_idx = set(random.sample(data_idx-train_idx,int(data_num * setting.VALID_PROP)))

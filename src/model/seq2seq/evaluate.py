@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import random
-
+import nltk
 import torch
 from torch.autograd import Variable
 
@@ -39,7 +39,7 @@ def evaluate(nlVocab, codeVocab, encoder, decoder, sentence, max_length=setting.
             decoded_words.append('<EOS>')
             break
         else:
-            decoded_words.append(nlVocab.getIndex(ni))
+            decoded_words.append(nlVocab.getWord(ni))
 
         decoder_input = Variable(torch.LongTensor([[ni]]))
         decoder_input = decoder_input.cuda() if setting.USE_CUDA else decoder_input
@@ -51,9 +51,11 @@ def evaluateRandomly(lang, dataSet, encoder, decoder, pairs,n=10):
     for i in range(n):
         pair = random.choice([pair for pair in pairs if len(pair[0].split(' '))<setting.SENTENCE_MAX_LENGTH and \
                               len(pair[1].split(' '))<setting.SENTENCE_MAX_LENGTH])
-        print('> CodeInput:', pair[0])
-        print('= NL target:', pair[1])
+        print('> CodeInput:'+ pair[0])
+        print('= NL target:'+ pair[1])
         output_words, attentions = evaluate(nlVocab, codeVocab, encoder, decoder, pair[0])
         output_sentence = ' '.join(output_words)
-        print('NL generate:', output_sentence)
+        print('NL generate:'+ output_sentence)
+        #print('BLEU4 = ')
+        #print (float(nltk.translate.bleu_score.corpus_bleu([pair[1].split(' ')], [output_words[0:-1]])))
         print('')
