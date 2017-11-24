@@ -10,7 +10,10 @@ from evaluate import evaluate
 from buildVocab import readVocab
 
 import torch
+from metrics.metric import metricPair
 
+def getMetirc(ref_str, gen_str):
+    return metricPair(ref_str, gen_str)
 
 def showPlot(points):
     plt.figure()
@@ -20,7 +23,6 @@ def showPlot(points):
     ax.yaxis.set_major_locator(loc)
     plt.plot(points)
     plt.savefig(setting.PNG_HOME + time.strftime("/[%Y%m%d %H:%M:%S].png", time.localtime()))
-
 
 def asMinutes(s):
     m = math.floor(s / 60)
