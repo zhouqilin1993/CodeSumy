@@ -1,13 +1,12 @@
 from __future__ import division
-
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch.nn.utils.rnn import pack_padded_sequence as pack
 from torch.nn.utils.rnn import pad_packed_sequence as unpack
 
-from src.opennmt import onmt
-from src.opennmt.onmt import aeq
+import onmt
+from onmt.Utils import aeq
 
 
 class EncoderBase(nn.Module):

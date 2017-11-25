@@ -15,7 +15,8 @@ import math
 import torch
 import torch.nn as nn
 
-from src.opennmt import onmt
+import onmt
+import onmt.modules
 
 
 class Statistics(object):

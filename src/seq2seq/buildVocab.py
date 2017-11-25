@@ -3,13 +3,14 @@
 # update: 2017/11/18
 # 根据 train.txt 将 train.txt test.txt valid.txt 依照词表进行 index 表达
 
-from io import open
 import json
-import setting
 import re
+from io import open
 
 import torch
 from torch.autograd import Variable
+
+import setting
 
 
 # Lowercase, trim, and remove non-letter characters
@@ -176,7 +177,7 @@ def variablesPairsFromData(dataType, lang, dataSet):
         read().strip().split('\n')
     pairs = [[normalizeString(s) for s in l.split('\t')] for l in lines]
     pairs = [[pair[2],pair[1]] for pair in pairs if len(pair) == 3 and \
-             len(pair[2])<setting.SENTENCE_MAX_LENGTH and len(pair[1])<setting.SENTENCE_MAX_LENGTH]
+             len(pair[2]) < setting.SENTENCE_MAX_LENGTH and len(pair[1]) < setting.SENTENCE_MAX_LENGTH]
     #train_pairs = [[ pair[0], pair[1]] for pair in pairs]
     train_pairs = [[variableFromSentence(codeVocab,pair[0]),variableFromSentence(nlVocab,pair[1])] for pair in pairs]
 
@@ -193,7 +194,7 @@ def readVocab(lang, dataSet):
     return nlVocab,codeVocab
 
 def genDataSet(dataSetType, lang, dataSet):
-    lines = open(setting.HOME_DIR+'/data/%s/%s/%s.txt' % (dataSet,lang,dataSetType)).\
+    lines = open(setting.HOME_DIR + '/data/%s/%s/%s.txt' % (dataSet, lang, dataSetType)).\
         read().strip().split('\n')
     f = open(setting.WORKDIR + "/%s.%s.%s.data" % (dataSet, lang, dataSetType), 'w')
     for line in lines:

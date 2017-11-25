@@ -2,20 +2,19 @@
 
 from __future__ import division
 
-import argparse
 import os
 import sys
-
+import argparse
 import torch
 import torch.nn as nn
 from torch import cuda
 
 import onmt
-import onmt.ModelConstructor
 import onmt.Models
+import onmt.ModelConstructor
 import onmt.modules
-import opts
 from onmt.Utils import aeq, use_gpu
+import opts
 
 parser = argparse.ArgumentParser(
     description='train.py',
@@ -99,8 +98,6 @@ def make_train_data_iter(train_data, opt):
     ordered iterator strategy here, but more sophisticated strategy
     like curriculum learning is ok too.
     """
-    # Sort batch by decreasing lengths of sentence required by pytorch.
-    # sort=False means "Using dataset's sortkey instead of iterator's sortkey".
     return onmt.IO.OrderedIterator(
                 dataset=train_data, batch_size=opt.batch_size,
                 device=opt.gpuid[0] if opt.gpuid else -1,

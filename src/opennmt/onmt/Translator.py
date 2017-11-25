@@ -1,10 +1,12 @@
+import torch
+from torch.autograd import Variable
+
 import onmt
-import onmt.IO
+import onmt.Models
 import onmt.ModelConstructor
 import onmt.modules
-import torch
+import onmt.IO
 from onmt.Utils import use_gpu
-from torch.autograd import Variable
 
 
 class Translator(object):

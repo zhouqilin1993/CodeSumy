@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import random
-import nltk
+
 import torch
 from torch.autograd import Variable
 
 import setting
 from buildVocab import variableFromSentence, readVocab
+
 
 def evaluate(nlVocab, codeVocab, encoder, decoder, sentence, max_length=setting.SENTENCE_MAX_LENGTH):
     input_variable = variableFromSentence(codeVocab, sentence)
@@ -49,8 +50,8 @@ def evaluate(nlVocab, codeVocab, encoder, decoder, sentence, max_length=setting.
 def evaluateRandomly(lang, dataSet, encoder, decoder, pairs,n=10):
     nlVocab, codeVocab = readVocab(lang, dataSet)
     for i in range(n):
-        pair = random.choice([pair for pair in pairs if len(pair[0].split(' '))<setting.SENTENCE_MAX_LENGTH and \
-                              len(pair[1].split(' '))<setting.SENTENCE_MAX_LENGTH])
+        pair = random.choice([pair for pair in pairs if len(pair[0].split(' ')) < setting.SENTENCE_MAX_LENGTH and \
+                              len(pair[1].split(' ')) < setting.SENTENCE_MAX_LENGTH])
         print('> CodeInput:'+ pair[0])
         print('= NL target:'+ pair[1])
         output_words, attentions = evaluate(nlVocab, codeVocab, encoder, decoder, pair[0])

@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 import matplotlib as mpl
 mpl.use('Agg')
-import random
 import setting
-import matplotlib.pyplot as plt
 from buildVocab import readVocab,variablesPairsFromData
-from evaluate import evaluateRandomly,evaluate
+from evaluate import evaluateRandomly
 from encoder import EncoderRNN
 from decoder import AttnDecoderRNN
 from train import trainIters
-from utils import evaluateAndShowAttention
 
 import torch
 

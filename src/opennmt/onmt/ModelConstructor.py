@@ -2,15 +2,16 @@
 This file is for models creation, which consults options
 and creates each encoder and decoder accordingly.
 """
-import onmt
-import onmt.modules
 import torch.nn as nn
-from onmt.modules import Embeddings, ImageEncoder, CopyGenerator, \
-    TransformerEncoder, TransformerDecoder, \
-    CNNEncoder, CNNDecoder
 
-from src.opennmt.onmt.Models import NMTModel, MeanEncoder, RNNEncoder, \
-    StdRNNDecoder, InputFeedRNNDecoder
+import onmt
+import onmt.Models
+import onmt.modules
+from onmt.Models import NMTModel, MeanEncoder, RNNEncoder, \
+                        StdRNNDecoder, InputFeedRNNDecoder
+from onmt.modules import Embeddings, ImageEncoder, CopyGenerator, \
+                         TransformerEncoder, TransformerDecoder, \
+                         CNNEncoder, CNNDecoder
 
 
 def make_embeddings(opt, word_dict, feature_dicts, for_encoder=True):

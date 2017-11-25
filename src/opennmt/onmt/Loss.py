@@ -5,12 +5,11 @@ This includes: LossComputeBase and the standard NMTLossCompute, and
                sharded loss compute stuff.
 """
 from __future__ import division
-
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from src.opennmt import onmt
+import onmt
 
 
 class LossComputeBase(nn.Module):

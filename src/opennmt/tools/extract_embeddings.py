@@ -1,11 +1,10 @@
 from __future__ import division
 
+import torch
 import argparse
 
-import torch
-
-from src.opennmt.onmt import make_embeddings, \
-    make_encoder, make_decoder
+from onmt.ModelConstructor import make_embeddings, \
+                            make_encoder, make_decoder
 
 parser = argparse.ArgumentParser(description='translate.py')
 

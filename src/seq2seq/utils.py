@@ -10,7 +10,7 @@ from evaluate import evaluate
 from buildVocab import readVocab
 
 import torch
-from metrics.metric import metricPair
+from ..metrics.metric import metricPair
 
 def getMetirc(ref_str, gen_str):
     return metricPair(ref_str, gen_str)

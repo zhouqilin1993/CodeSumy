@@ -2,12 +2,13 @@ import argparse
 import copy
 import unittest
 
+import torch
+from torch.autograd import Variable
+
 import onmt
 import opts
-import torch
 from onmt.ModelConstructor import make_embeddings, \
-    make_encoder, make_decoder
-from torch.autograd import Variable
+                            make_encoder, make_decoder
 
 parser = argparse.ArgumentParser(description='train.py')
 opts.model_opts(parser)
@@ -113,7 +114,7 @@ class TestModel(unittest.TestCase):
                                      for_encoder=False)
         dec = make_decoder(opt, embeddings)
 
-        model = src.opennmt.onmt.Models.NMTModel(enc, dec)
+        model = onmt.Models.NMTModel(enc, dec)
 
         test_src, test_tgt, test_length = self.get_batch(sourceL=sourceL,
                                                          bsize=bsize)

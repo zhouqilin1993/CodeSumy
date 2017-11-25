@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append("..")
-from src.model.seq2seq import setting
+from src.seq2seq import setting
 import re
 import collections
 import json
@@ -36,8 +36,8 @@ def buildVocab(plat,lang):
         tokens.update(tokenizeCode(Lcode, lang))
         words.update(tokenizeNL(Lnl))
     
-    fa = open(setting.WORKDIR + '/vocab.'+lang+'.text', 'w')
-    fb = open(setting.WORKDIR + '/vocab.'+lang+'.code', 'w')
+    fa = open(setting.WORKDIR + '/vocab.' + lang + '.text', 'w')
+    fb = open(setting.WORKDIR + '/vocab.' + lang + '.code', 'w')
     for tok in tokens:
         if tokens[tok] > setting.CODE_UNK_THRESHOLD:
             fb.write(tok + '\t' + str(tokens[tok]) + '\n')

@@ -1,12 +1,12 @@
 import argparse
 import copy
 import unittest
-from collections import Counter
-
+import onmt
 import opts
 import torchtext
 
-from src.opennmt import onmt
+from collections import Counter
+
 
 parser = argparse.ArgumentParser(description='preprocess.py')
 opts.preprocess_opts(parser)

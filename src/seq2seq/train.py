@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import random
 import time
-import setting
-from utils import showPlot, timeSince
-from buildVocab import variablesPairsFromData
 
 import torch
 import torch.nn as nn
 from torch import optim
 from torch.autograd import Variable
+
+import setting
+from utils import showPlot, timeSince
 
 
 def train(input_variable, target_variable, encoder, decoder, encoder_optimizer, decoder_optimizer, \

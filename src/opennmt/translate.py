@@ -1,20 +1,17 @@
 #!/usr/bin/env python
 
 from __future__ import division
-
-import argparse
-import codecs
-import math
-import os
-from itertools import takewhile, count
-
-import torch
 from builtins import bytes
+import os
+import argparse
+import math
+import codecs
+import torch
 
 import onmt
 import onmt.IO
 import opts
-
+from itertools import takewhile, count
 try:
     from itertools import zip_longest
 except ImportError:
@@ -72,9 +69,6 @@ def main():
         shuffle=False)
 
     counter = count(1)
-
-    print("Debug: ", test_data)
-
     for batch in test_data:
         pred_batch, gold_batch, pred_scores, gold_scores, attn, src \
             = translator.translate(batch, data)

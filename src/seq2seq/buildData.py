@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import setting
-from pymongo import *
+import random
 import re
 import unicodedata
-import random
+
+from pymongo import *
+
+import setting
 
 
 # 从MongoDB中获取Java和C#的数据,提取NL和Code的Token,过滤所有\t的字符(将\t替换为\space);
@@ -27,7 +29,7 @@ def download_data(plat,lang):
             id = id + 1
         # 加入下载进度条显示
 
-    f = open(setting.HOME_DIR + '/data/'+plat+'/'+lang+'/'+"data.txt", 'w')
+    f = open(setting.HOME_DIR + '/data/' + plat + '/' + lang + '/' + "data.txt", 'w')
     for dataline in dataset:
         line = ""+str(dataline["id"])+"\t"+dataline["text"].replace('\t','\\t').strip() + \
                 "\t"+dataline["code"].replace('\t','\\t').strip()
@@ -39,7 +41,7 @@ def unicodeToAscii(s):
     return unicodedata.normalize('NFKD', s.decode('utf-8')).encode('ascii','ignore')
 
 def splitData(plat,lang):
-    Data_Dir = setting.HOME_DIR + '/data/'+plat+'/'+lang+'/'
+    Data_Dir = setting.HOME_DIR + '/data/' + plat + '/' + lang + '/'
     f1 = open(Data_Dir + "train.txt", 'w')
     f2 = open(Data_Dir + "test.txt", 'w')
     f3 = open(Data_Dir + "valid.txt", 'w')
@@ -53,9 +55,9 @@ def splitData(plat,lang):
         print("ERROR: DATASET_SIZE MUST >= 0 !")
 
     data_idx = set(range(data_num))
-    train_idx = set(random.sample(data_idx,int(data_num * setting.TRAIN_PROP)))
-    valid_idx = set(random.sample(data_idx-train_idx,int(data_num * setting.VALID_PROP)))
-    test_idx = set(random.sample(data_idx-train_idx-valid_idx,int(data_num * setting.TEST_PROP)))
+    train_idx = set(random.sample(data_idx, int(data_num * setting.TRAIN_PROP)))
+    valid_idx = set(random.sample(data_idx - train_idx, int(data_num * setting.VALID_PROP)))
+    test_idx = set(random.sample(data_idx - train_idx - valid_idx, int(data_num * setting.TEST_PROP)))
     for line in lines:
         line_id, line_text, line_code = line.strip().split('\t')
         line_wirte = ""+line_id+"\t"+unicodeToAscii(line_text)+"\t"+unicodeToAscii(line_code)+"\n"

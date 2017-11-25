@@ -1,8 +1,6 @@
 from __future__ import division
-
 import torch
-
-from src.opennmt import onmt
+import onmt
 
 """
  Class for managing the internals of the beam search process.

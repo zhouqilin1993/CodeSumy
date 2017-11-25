@@ -274,7 +274,7 @@ class ONMTDataset(torchtext.data.Dataset):
 
     @staticmethod
     def sort_key(ex):
-        #"Sort in reverse size order"
+        "Sort in reverse size order"
         return -len(ex.src)
 
     def __init__(self, src_path, tgt_path, fields,
