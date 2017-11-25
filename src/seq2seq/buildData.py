@@ -59,6 +59,9 @@ def splitData(plat,lang):
     valid_idx = set(random.sample(data_idx - train_idx, int(data_num * setting.VALID_PROP)))
     test_idx = set(random.sample(data_idx - train_idx - valid_idx, int(data_num * setting.TEST_PROP)))
     for line in lines:
+        l = line.strip().split('\t')
+        if len(l) != 3:
+            continue
         line_id, line_text, line_code = line.strip().split('\t')
         line_wirte = ""+line_id+"\t"+unicodeToAscii(line_text)+"\t"+unicodeToAscii(line_code)+"\n"
         if int(line_id) in train_idx:

@@ -52,6 +52,8 @@ opt = parser.parse_args()
 torch.manual_seed(opt.seed)
 
 
+
+
 def main():
     print('Preparing training ...')
     with codecs.open(opt.train_src, "r", "utf-8") as src_file:
